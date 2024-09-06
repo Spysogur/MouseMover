@@ -64,7 +64,8 @@ namespace MouseMover
             }
         }
         private void Loop(CancellationToken cancellationToken)
-        {       buttonStop.Enabled = true;
+        {      
+
                 int originalX = Cursor.Position.X;
                 int originalY = Cursor.Position.Y;
 
