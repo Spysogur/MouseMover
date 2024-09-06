@@ -20,7 +20,7 @@ namespace MouseMover
             ES_AWAYMODE_REQUIRED = 0x00000040, // Prevent idle-to-sleep mode
         }
 
-        bool x=false;
+        bool stop=false;
         [DllImport("kernel32.dll")]
         static extern uint SetThreadExecutionState(EXECUTION_STATE esFlags);
         private bool _isRunning = false;
@@ -35,12 +35,13 @@ namespace MouseMover
         {
             if (_isRunning)
             {
+                stop = true;
                 _isRunning = false;
                 buttonStart.Enabled = true;
                 buttonStop.Enabled = false;
                 ExitButton.Enabled = true;
                 // run the loop in a background task
-                _cancellationTokenSource.Cancel();
+                _cancellationTokenSource.Cancel(stop);
             }
         }
 
@@ -52,6 +53,7 @@ namespace MouseMover
         {
             if (!_isRunning)
             {
+                stop = false;
                 _isRunning = true;
                 buttonStart.Enabled = false;
                 buttonStop.Enabled = true;
@@ -71,7 +73,7 @@ namespace MouseMover
 
                 Thread.Sleep(1000);
                 SetCursorPos(originalX, originalY);
-                while (!cancellationToken.IsCancellationRequested)
+            while (stop == false;)
                 {
                     //prevent sleep mode
                     SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS | EXECUTION_STATE.ES_SYSTEM_REQUIRED | EXECUTION_STATE.ES_DISPLAY_REQUIRED | EXECUTION_STATE.ES_AWAYMODE_REQUIRED);
@@ -89,8 +91,11 @@ namespace MouseMover
                     SetCursorPos(originalX, originalY);
                     SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
                 }
-                
-            } 
+              if (stop == false)
+            {
+                _cancellationTokenSource.Cancel();
+            }
+        } 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             if(_isRunning)
